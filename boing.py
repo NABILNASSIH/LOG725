@@ -42,9 +42,9 @@ class Impact(Actor):
 class Ball(Entity):
     def __init__(self):
         super().__init__("ball")
-        self.add_component(Position(HALF_WIDTH, HALF_HEIGHT))
-        self.add_component(Velocity(-1,0))
-        self.add_component(Sprite("images/ball.png"))
+        self.add_component(Position_Component(HALF_WIDTH, HALF_HEIGHT))
+        self.add_component(Velocity_Component(-1,0))
+        self.add_component(Sprite_Component("images/ball.png"))
         # dx and dy together describe the direction in which the ball is moving. For example, if dx and dy are 1 and 0,
         # the ball is moving to the right, with no movement up or down. If both values are negative, the ball is moving
         # left and up, with the angle depending on the relative values of the two variables. If you're familiar with
@@ -53,21 +53,21 @@ class Ball(Entity):
         self.speed = 5
 
     def reset(self, dx):
-        self.get_component(Position).x = HALF_WIDTH
-        self.get_component(Position).y = HALF_HEIGHT
-        self.get_component(Velocity).dx = dx
-        self.get_component(Velocity).dy = 0
+        self.get_component(Position_Component).x = HALF_WIDTH
+        self.get_component(Position_Component).y = HALF_HEIGHT
+        self.get_component(Velocity_Component).dx = dx
+        self.get_component(Velocity_Component).dy = 0
         self.speed = 5
 
     def update(self):
         # Each frame, we move the ball in a series of small steps - the number of steps being based on its speed attribute
         for i in range(self.speed):
             # Store the previous x position
-            original_x = self.get_component(Position).x
+            original_x = self.get_component(Position_Component).x
 
             # Move the ball based on dx and dy
-            self.get_component(Position).x += self.get_component(Velocity).dx
-            self.get_component(Position).y += self.get_component(Velocity).dy
+            self.get_component(Position_Component).x += self.get_component(Velocity_Component).dx
+            self.get_component(Position_Component).y += self.get_component(Velocity_Component).dy
 
             # Check to see if ball needs to bounce off a bat
 
@@ -80,20 +80,20 @@ class Ball(Entity):
             # screen, it can bounce off a bat (assuming the bat is in the right position on the Y axis - checked
             # shortly afterwards).
             # We also check the previous X position to ensure that this is the first frame in which the ball crossed the threshold.
-            if abs(self.get_component(Position).x - HALF_WIDTH) >= 344 and abs(original_x - HALF_WIDTH) < 344:
+            if abs(self.get_component(Position_Component).x - HALF_WIDTH) >= 344 and abs(original_x - HALF_WIDTH) < 344:
 
                 # Now that we know the edge of the ball has crossed the threshold on the x-axis, we need to check to
                 # see if the bat on the relevant side of the arena is at a suitable position on the y-axis for the
                 # ball collide with it.
 
-                if self.get_component(Position).x < HALF_WIDTH:
+                if self.get_component(Position_Component).x < HALF_WIDTH:
                     new_dir_x = 1
                     bat = game.bats[0]
                 else:
                     new_dir_x = -1
                     bat = game.bats[1]
 
-                difference_y = self.get_component(Position).y - bat.y
+                difference_y = self.get_component(Position_Component).y - bat.y
 
                 if difference_y > -64 and difference_y < 64:
                     # Ball has collided with bat - calculate new direction vector
@@ -114,21 +114,21 @@ class Ball(Entity):
                     # bat. This gives the player a bit of control over where the ball goes.
 
                     # Bounce the opposite way on the X axis
-                    self.get_component(Velocity).dx = -self.get_component(Velocity).dx
+                    self.get_component(Velocity_Component).dx = -self.get_component(Velocity_Component).dx
 
                     # Deflect slightly up or down depending on where ball hit bat
-                    self.get_component(Velocity).dy += difference_y / 128
+                    self.get_component(Velocity_Component).dy += difference_y / 128
 
                     # Limit the Y component of the vector so we don't get into a situation where the ball is bouncing
                     # up and down too rapidly
-                    self.get_component(Velocity).dy = min(max(self.get_component(Velocity).dy, -1), 1)
+                    self.get_component(Velocity_Component).dy = min(max(self.get_component(Velocity_Component).dy, -1), 1)
 
                     # Ensure our direction vector is a unit vector, i.e. represents a distance of the equivalent of
                     # 1 pixel regardless of its angle
-                    self.get_component(Velocity).dx, self.get_component(Velocity).dy = normalised(self.get_component(Velocity).dx, self.get_component(Velocity).dy)
+                    self.get_component(Velocity_Component).dx, self.get_component(Velocity_Component).dy = normalised(self.get_component(Velocity_Component).dx, self.get_component(Velocity_Component).dy)
 
                     # Create an impact effect
-                    game.impacts.append(Impact((self.get_component(Position).x - new_dir_x * 10, self.get_component(Position).y)))
+                    game.impacts.append(Impact((self.get_component(Position_Component).x - new_dir_x * 10, self.get_component(Position_Component).y)))
 
                     # Increase speed with each hit
                     self.speed += 1
@@ -152,14 +152,14 @@ class Ball(Entity):
                         game.play_sound("hit_veryfast", 1)
 
             # The top and bottom of the arena are 220 pixels from the centre
-            if abs(self.get_component(Position).y - HALF_HEIGHT) > 220:
+            if abs(self.get_component(Position_Component).y - HALF_HEIGHT) > 220:
                 # Invert vertical direction and apply new dy to y so that the ball is no longer overlapping with the
                 # edge of the arena
-                self.get_component(Velocity).dy = -self.get_component(Velocity).dy
-                self.get_component(Position).y += self.get_component(Velocity).dy
+                self.get_component(Velocity_Component).dy = -self.get_component(Velocity_Component).dy
+                self.get_component(Position_Component).y += self.get_component(Velocity_Component).dy
 
                 # Create impact effect
-                game.impacts.append(Impact((self.get_component(Position).x,self.get_component(Position).y)))
+                game.impacts.append(Impact((self.get_component(Position_Component).x,self.get_component(Position_Component).y)))
 
                 # Sound effect
                 game.play_sound("bounce", 5)
@@ -167,7 +167,7 @@ class Ball(Entity):
 
     def out(self):
         # Has ball gone off the left or right edge of the screen?
-        return self.get_component(Position).x < 0 or self.get_component(Position).x > WIDTH
+        return self.get_component(Position_Component).x < 0 or self.get_component(Position_Component).x > WIDTH
 
 
 class Bat(Actor):
@@ -178,7 +178,7 @@ class Bat(Actor):
 
         self.player = player
         self.score = 0
-        self.components = {'Velocity': Velocity()}
+        self.components = {'Velocity': Velocity_Component()}
 
         if move_func is not None:
             self.move_func = move_func
@@ -220,7 +220,7 @@ class Bat(Actor):
         # the screen.
 
         # To decide where we want to go, we first check to see how far we are from the ball.
-        x_distance = abs(game.ball.get_component(Position).x - self.x)
+        x_distance = abs(game.ball.get_component(Position_Component).x - self.x)
 
         # If the ball is far away, we move towards the centre of the screen (HALF_HEIGHT), on the basis that we don't
         # yet know whether the ball will be in the top or bottom half of the screen when it reaches our position on
@@ -230,7 +230,7 @@ class Bat(Actor):
         # If the ball is close, we want to move towards its position on the Y axis. We also apply a small offset which
         # is randomly generated each time the ball bounces. This is to make the computer player slightly less robotic
         # - a human player wouldn't be able to hit the ball right in the centre of the bat each time.
-        target_y_2 = game.ball.get_component(Position).y + game.ai_offset
+        target_y_2 = game.ball.get_component(Position_Component).y + game.ai_offset
 
         # The final step is to work out the actual Y position we want to move towards. We use what's called a weighted
         # average - taking the average of the two target Y positions we've previously calculated, but shifting the
@@ -283,7 +283,7 @@ class Game:
         if self.ball.out():
             # Work out which player gained a point, based on whether the ball
             # was on the left or right-hand side of the screen
-            scoring_player = 1 if self.ball.get_component(Position).x < WIDTH // 2 else 0
+            scoring_player = 1 if self.ball.get_component(Position_Component).x < WIDTH // 2 else 0
             losing_player = 1 - scoring_player
 
             # We use the timer of the player who has just conceded a point to decide when to create a new ball in the

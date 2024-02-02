@@ -1,5 +1,5 @@
 from entity import Entity
-from components import Velocity
+from components import Velocity_Component
 from settings import PLAYER_SPEED
 import pgzero, pgzrun, pygame
 import math, sys, random
@@ -12,7 +12,7 @@ class MoveBatUpCommand(Command):
         self.bat = bat
 
     def execute(self):
-        velocity = self.bat.get_component(Velocity)
+        velocity = self.bat.get_component(Velocity_Component)
         if velocity is not None:
             velocity.dy = -PLAYER_SPEED
 
@@ -21,6 +21,6 @@ class MoveBatDownCommand(Command):
         self.bat = bat
 
     def execute(self):
-        velocity = self.bat.get_component(Velocity)
+        velocity = self.bat.get_component(Velocity_Component)
         if velocity is not None:
             velocity.dy = PLAYER_SPEED
